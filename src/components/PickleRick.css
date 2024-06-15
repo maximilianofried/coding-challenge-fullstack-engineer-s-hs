@@ -1,0 +1,22 @@
+.PickleRick .container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.character-card {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.character-card .avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.character-card .name {
+  margin-top: 8px;
+}

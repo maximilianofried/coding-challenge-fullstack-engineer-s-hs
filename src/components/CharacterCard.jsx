@@ -1,10 +1,10 @@
-import React from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState } from 'react';
+import { gql, useLazyQuery } from '@apollo/client';
 import '../styles/CharacterCard.css';
 
-const GET_LATEST_EPISODES = gql`
-  query GetLatestEpisodes($ids: [ID!]!) {
-    episodesByIds(ids: $ids) {
+const GET_EPISODES_BY_IDS = gql`
+  query GetEpisodesByIds($ids: [ID!]!) {
+    getEpisodesByIds(ids: $ids) {
       id
       name
       air_date
@@ -12,28 +12,22 @@ const GET_LATEST_EPISODES = gql`
   }
 `;
 
-const CharacterCard = ({
-  character,
-  onExpand,
-  expanded,
-  onToggleFavorite,
-  isFavorite,
-}) => {
+const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
   const { id, name, image, species, gender, origin, status, episode } =
     character;
-
-  const latestEpisodeIds = episode.slice(0, 3).map(ep => ep.id);
-
-  const { data: episodesData } = useQuery(GET_LATEST_EPISODES, {
-    variables: { ids: latestEpisodeIds },
-    skip: !expanded || latestEpisodeIds.length === 0,
+  const [expanded, setExpanded] = useState(false);
+  const [fetchEpisodes, { loading, data }] = useLazyQuery(GET_EPISODES_BY_IDS, {
+    variables: { ids: episode.slice(0, 3).map(ep => ep.id) },
   });
 
-  const episodes = episodesData
-    ? episodesData.episodesByIds.sort(
-        (a, b) => new Date(b.air_date) - new Date(a.air_date)
-      )
-    : [];
+  const handleExpand = () => {
+    if (!expanded) {
+      fetchEpisodes();
+    }
+    setExpanded(!expanded);
+  };
+
+  const episodes = data ? data.getEpisodesByIds : [];
 
   return (
     <div className={`character-card ${expanded ? 'expanded' : ''}`}>
@@ -47,17 +41,21 @@ const CharacterCard = ({
       <button onClick={() => onToggleFavorite(id)}>
         {isFavorite ? 'Unfavorite' : 'Favorite'}
       </button>
-      <button onClick={() => onExpand(id)}>{expanded ? 'Less' : 'More'}</button>
+      <button onClick={handleExpand}>{expanded ? 'Less' : 'More'}</button>
       {expanded && (
         <div className="episodes-list">
           <h3>Latest Episodes</h3>
-          <ul>
-            {episodes.map(episode => (
-              <li key={episode.id}>
-                {episode.name} ({episode.air_date})
-              </li>
-            ))}
-          </ul>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <ul>
+              {episodes.map(ep => (
+                <li key={ep.id}>
+                  {ep.name} ({ep.air_date})
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>

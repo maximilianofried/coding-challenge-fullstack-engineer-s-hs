@@ -3,7 +3,6 @@ import { GraphQLError } from 'graphql';
 import axios from 'axios';
 import User from '../models/User';
 import Character, { ICharacter } from '../models/Character';
-import { Document } from 'mongoose';
 
 // Define types based on API documentation
 interface Location {
@@ -77,6 +76,12 @@ const fetchAndSaveCharacters = async (page: number): Promise<ICharacter[]> => {
   }).exec();
 };
 
+const fetchEpisodesByIds = async (ids: string[]): Promise<Episode[]> => {
+  const episodePromises = ids.map(id => axios.get(id));
+  const episodeResponses = await Promise.all(episodePromises);
+  return episodeResponses.map(response => response.data);
+};
+
 const resolvers: IResolvers = {
   Query: {
     getUser: async (_: any, { username }: { username: string }) => {
@@ -99,6 +104,9 @@ const resolvers: IResolvers = {
       }
 
       return characters;
+    },
+    getEpisodesByIds: async (_: any, { ids }: { ids: string[] }) => {
+      return await fetchEpisodesByIds(ids);
     },
   },
   Mutation: {

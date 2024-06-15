@@ -21,11 +21,9 @@ const LOGIN = gql`
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
-  const [
-    getUser,
-    { loading: getUserLoading, error: getUserError, data: getUserData },
-  ] = useLazyQuery(GET_USER);
-  const [login, { loading: loginLoading, error: loginError, data: loginData }] =
+  const [getUser, { loading: getUserLoading, error: getUserError }] =
+    useLazyQuery(GET_USER);
+  const [login, { loading: loginLoading, error: loginError }] =
     useMutation(LOGIN);
 
   const handleSubmit = async e => {

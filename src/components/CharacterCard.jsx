@@ -33,7 +33,7 @@ const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
     <div className={`character-card ${expanded ? 'expanded' : ''}`}>
       <img className="avatar" src={image} alt={name} />
       <h2 className="name">{name}</h2>
-      <ul>
+      <ul className="character-info">
         <li>Species: {species}</li>
         <li>Gender: {gender}</li>
         <li>Origin: {origin.name}</li>
@@ -59,7 +59,7 @@ const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <ul>
+            <ul className="character-info">
               {episodes.map(ep => (
                 <li key={ep.id}>
                   {ep.name} ({ep.air_date})

@@ -39,25 +39,31 @@ const CharactersList = ({ onToggleFavorite, favorites, displayFavorites }) => {
   const handleExpand = id => {
     setExpandedId(expandedId === id ? null : id);
   };
-
   return (
     <div className="characters-list">
       {displayFavorites && favorites.length === 0 ? (
         <div>
           <p>No favorites yet? It's like Rick without a portal gun!</p>
-          <img className="fallback" src="./rick.png" alt="rick and morty" />
+          <img
+            className="fallback-image"
+            src="./rick.png"
+            alt="rick and morty"
+          />
         </div>
       ) : (
-        charactersToDisplay.map(character => (
-          <CharacterCard
-            key={character.id}
-            character={character}
-            onExpand={handleExpand}
-            expanded={expandedId === character.id}
-            onToggleFavorite={onToggleFavorite}
-            isFavorite={favorites.includes(character.id)}
-          />
-        ))
+        <ul className="character-cards">
+          {charactersToDisplay.map(character => (
+            <li key={character.id}>
+              <CharacterCard
+                character={character}
+                onExpand={handleExpand}
+                expanded={expandedId === character.id}
+                onToggleFavorite={onToggleFavorite}
+                isFavorite={favorites.includes(character.id)}
+              />
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

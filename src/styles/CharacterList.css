@@ -1,9 +1,12 @@
-.characters-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.fallback-image {
+  width: 500px;
 }
 
-.fallback {
-  width: 500px;
+.character-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-gap: 1rem;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }

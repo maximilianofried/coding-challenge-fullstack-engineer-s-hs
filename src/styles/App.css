@@ -1,5 +1,6 @@
 body {
-  font-family: sans-serif;
+  font-family: 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
 }
 .App {
   text-align: center;
@@ -17,25 +18,4 @@ button {
 
 button:hover {
   text-decoration: underline;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-}
-
-.navbar img {
-  width: 250px;
-}
-
-.error {
-  color: #b94150;
-}
-
-@media (max-width: 600px) {
-  .navbar {
-    flex-direction: column;
-  }
 }

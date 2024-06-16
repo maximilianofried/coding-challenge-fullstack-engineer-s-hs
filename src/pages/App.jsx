@@ -4,6 +4,7 @@ import Provider from '../api/Provider';
 import Login from '../components/Login';
 import CharactersList from '../components/CharactersList';
 import '../styles/App.css';
+import Navbar from '../components/Navbar';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -52,18 +53,12 @@ const App = () => {
   return (
     <Provider>
       <div className="App">
-        <header className="navbar">
-          <img src="/Rick_and_Morty.svg" alt="rick and morty logo" />
-          <div>
-            <button onClick={() => setDisplayFavorites(!displayFavorites)}>
-              {displayFavorites
-                ? 'Show All Characters'
-                : 'Show favorite characters'}
-            </button>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
-
+        <Navbar
+          displayFavorites={displayFavorites}
+          setDisplayFavorites={setDisplayFavorites}
+          handleLogout={handleLogout}
+          user={user}
+        />
         <CharactersList
           onToggleFavorite={handleToggleFavorite}
           favorites={favorites}

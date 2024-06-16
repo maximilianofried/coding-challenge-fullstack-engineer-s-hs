@@ -110,7 +110,7 @@ const resolvers: IResolvers = {
       return episodes
         .sort(
           (a, b) =>
-            new Date(a.air_date).getTime() - new Date(b.air_date).getTime()
+            new Date(b.air_date).getTime() - new Date(a.air_date).getTime()
         )
         .slice(0, 3);
     },

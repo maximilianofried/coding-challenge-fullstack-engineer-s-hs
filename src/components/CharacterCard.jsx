@@ -17,7 +17,7 @@ const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
     character;
   const [expanded, setExpanded] = useState(false);
   const [fetchEpisodes, { loading, data }] = useLazyQuery(GET_EPISODES_BY_IDS, {
-    variables: { ids: episode.slice(0, 3).map(ep => ep.id) },
+    variables: { ids: episode.map(ep => ep.id) },
   });
 
   const handleExpand = () => {
@@ -33,15 +33,26 @@ const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
     <div className={`character-card ${expanded ? 'expanded' : ''}`}>
       <img className="avatar" src={image} alt={name} />
       <h2 className="name">{name}</h2>
-      <p>Species: {species}</p>
-      <p>Gender: {gender}</p>
-      <p>Origin: {origin.name}</p>
-      <p>Dimension: {origin.dimension}</p>
-      <p>Status: {status}</p>
-      <button onClick={() => onToggleFavorite(id)}>
-        {isFavorite ? 'Unfavorite' : 'Favorite'}
-      </button>
-      <button onClick={handleExpand}>{expanded ? 'Less' : 'More'}</button>
+      <ul>
+        <li>Species: {species}</li>
+        <li>Gender: {gender}</li>
+        <li>Origin: {origin.name}</li>
+        <li>Dimension: {origin.dimension}</li>
+        <li>Status: {status}</li>
+      </ul>
+      <div className="buttons-wrapper">
+        <button
+          className={`favorite-button ${isFavorite ? 'favorite' : ''}`}
+          onClick={() => onToggleFavorite(id)}
+        >
+          <img
+            src={isFavorite ? '/star-filled.svg' : '/star-empty.svg'}
+            alt={isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+            className="star-icon"
+          />
+        </button>
+        <button onClick={handleExpand}>{expanded ? 'Less' : 'More'}</button>
+      </div>
       {expanded && (
         <div className="episodes-list">
           <h3>Latest Episodes</h3>

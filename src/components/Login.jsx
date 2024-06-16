@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLazyQuery, useMutation, gql } from '@apollo/client';
+import '../styles/Login.css'; // make sure this path is correct
 
 const GET_USER = gql`
   query GetUser($username: String!) {
@@ -43,20 +44,30 @@ const Login = ({ onLogin }) => {
     }
   };
 
-  if (getUserLoading || loginLoading) return <p>Loading...</p>;
-  if (getUserError || loginError)
-    return <p>Error :( {getUserError?.message || loginError?.message}</p>;
-
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+    <div className="login-card">
+      <img src="/rick_and_morty.svg" alt="rick and morty logo" />
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+        />
+        {getUserLoading || loginLoading ? (
+          <p>Loading...</p>
+        ) : (
+          <button type="submit">Login</button>
+        )}
+
+        {(getUserError?.message || loginError?.message) && (
+          <p className="error">
+            Error: It's like Rick tried to portal you in, but you ended up in
+            Cronenberg world instead. Try again!
+          </p>
+        )}
+      </form>
+    </div>
   );
 };
 

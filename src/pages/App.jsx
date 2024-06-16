@@ -52,10 +52,18 @@ const App = () => {
   return (
     <Provider>
       <div className="App">
-        <button onClick={handleLogout}>Logout</button>
-        <button onClick={() => setDisplayFavorites(!displayFavorites)}>
-          {displayFavorites ? 'Display All' : 'Display Favorites'}
-        </button>
+        <header className="navbar">
+          <img src="/Rick_and_Morty.svg" alt="rick and morty logo" />
+          <div>
+            <button onClick={() => setDisplayFavorites(!displayFavorites)}>
+              {displayFavorites
+                ? 'Show All Characters'
+                : 'Show favorite characters'}
+            </button>
+            <button onClick={handleLogout}>Logout</button>
+          </div>
+        </header>
+
         <CharactersList
           onToggleFavorite={handleToggleFavorite}
           favorites={favorites}

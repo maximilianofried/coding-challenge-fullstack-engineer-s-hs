@@ -106,7 +106,13 @@ const resolvers: IResolvers = {
       return characters;
     },
     getEpisodesByIds: async (_: any, { ids }: { ids: string[] }) => {
-      return await fetchEpisodesByIds(ids);
+      const episodes = await fetchEpisodesByIds(ids);
+      return episodes
+        .sort(
+          (a, b) =>
+            new Date(a.air_date).getTime() - new Date(b.air_date).getTime()
+        )
+        .slice(0, 3);
     },
   },
   Mutation: {

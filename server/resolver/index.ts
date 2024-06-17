@@ -115,17 +115,15 @@ const resolvers: IResolvers = {
         .slice(0, 3);
     },
     getFavoriteCharacters: async (_, { username }) => {
-      const user = await User.findOne({ username })
-        .populate('favoriteCharacters')
-        .exec();
+      const user = await User.findOne({ username }).exec();
       if (!user)
         throw new GraphQLError('User not found', {
           extensions: { code: 'USER_NOT_FOUND' },
         });
-      const favoriteCharacters = await Character.find({
+
+      return await Character.find({
         id: { $in: user.favoriteCharacters },
       }).exec();
-      return favoriteCharacters;
     },
   },
   Mutation: {
@@ -138,9 +136,7 @@ const resolvers: IResolvers = {
       return user;
     },
     toggleFavoriteCharacter: async (_, { username, characterId }) => {
-      const user = await User.findOne({ username })
-        .populate('favoriteCharacters')
-        .exec();
+      const user = await User.findOne({ username }).exec();
       if (!user)
         throw new GraphQLError('User not found', {
           extensions: { code: 'USER_NOT_FOUND' },
@@ -155,10 +151,7 @@ const resolvers: IResolvers = {
       }
 
       await user.save();
-      const populatedUser = await User.findOne({ username })
-        .populate('favoriteCharacters')
-        .exec();
-      return populatedUser;
+      return user.favoriteCharacters;
     },
   },
 };

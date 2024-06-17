@@ -45,24 +45,7 @@ export const GET_FAVORITE_CHARACTERS = gql`
 
 export const TOGGLE_FAVORITE_CHARACTER = gql`
   mutation ToggleFavoriteCharacter($username: String!, $characterId: String!) {
-    toggleFavoriteCharacter(username: $username, characterId: $characterId) {
-      username
-      favoriteCharacters {
-        id
-        name
-        image
-        species
-        gender
-        origin {
-          name
-          dimension
-        }
-        status
-        episode {
-          id
-        }
-      }
-    }
+    toggleFavoriteCharacter(username: $username, characterId: $characterId)
   }
 `;
 

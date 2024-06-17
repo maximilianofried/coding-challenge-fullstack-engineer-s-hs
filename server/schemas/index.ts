@@ -3,7 +3,7 @@ import { gql } from 'graphql-tag';
 const typeDefs = gql`
   type User {
     username: String
-    favoriteCharacters: [Character]
+    favoriteCharacters: [String]
   }
 
   type Character {
@@ -39,7 +39,7 @@ const typeDefs = gql`
 
   type Mutation {
     login(username: String!): User
-    toggleFavoriteCharacter(username: String!, characterId: String!): User
+    toggleFavoriteCharacter(username: String!, characterId: String!): [String]
   }
 `;
 

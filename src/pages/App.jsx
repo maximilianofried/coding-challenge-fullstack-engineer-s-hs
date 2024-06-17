@@ -10,6 +10,7 @@ import Navbar from '../components/Navbar';
 const App = () => {
   const [user, setUser] = useState(null);
   const [displayFavorites, setDisplayFavorites] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -31,6 +32,7 @@ const App = () => {
 
   const handleDisplayFavoritesToggle = () => {
     setDisplayFavorites(!displayFavorites);
+    setRefresh(!refresh);
   };
 
   if (!user) {
@@ -47,9 +49,9 @@ const App = () => {
           user={user}
         />
         {displayFavorites ? (
-          <FavoriteCharacters user={user} />
+          <FavoriteCharacters user={user} refresh={refresh} />
         ) : (
-          <AllCharacters user={user} />
+          <AllCharacters user={user} refresh={refresh} />
         )}
       </div>
     </Provider>

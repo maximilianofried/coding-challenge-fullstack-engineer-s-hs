@@ -45,7 +45,7 @@ const TOGGLE_FAVORITE_CHARACTER = gql`
   }
 `;
 
-const AllCharacters = ({ user }) => {
+const AllCharacters = ({ user, refresh }) => {
   const [favorites, setFavorites] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,6 +68,10 @@ const AllCharacters = ({ user }) => {
       setFavorites(userFavoritesData.getUser.favoriteCharacters);
     }
   }, [userFavoritesData]);
+
+  useEffect(() => {
+    refetchUserFavorites();
+  }, [refresh, refetchUserFavorites]);
 
   const handleExpand = id => {
     setExpandedId(expandedId === id ? null : id);

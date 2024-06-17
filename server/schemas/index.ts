@@ -2,21 +2,21 @@ import { gql } from 'graphql-tag';
 
 const typeDefs = gql`
   type User {
-    username: String
-    favoriteCharacters: [String]
+    username: String!
+    favoriteCharacters: [String!]
   }
 
   type Character {
-    id: ID
-    name: String
+    id: ID!
+    name: String!
     image: String
     species: String
     gender: String
     origin: Origin
     status: String
-    episode: [Episode]
-    lastUpdated: String
-    page: Int
+    episode: [Episode!]
+    lastUpdated: String!
+    page: Int!
   }
 
   type Origin {
@@ -25,21 +25,21 @@ const typeDefs = gql`
   }
 
   type Episode {
-    id: ID
-    name: String
+    id: ID!
+    name: String!
     air_date: String
   }
 
   type PageInfo {
-    count: Int
-    pages: Int
+    count: Int!
+    pages: Int!
     next: Int
     prev: Int
   }
 
   type CharactersResult {
-    info: PageInfo
-    results: [Character]
+    info: PageInfo!
+    results: [Character!]!
   }
 
   type Query {

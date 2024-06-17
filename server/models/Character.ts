@@ -30,14 +30,14 @@ const OriginSchema: Schema = new Schema({
 });
 
 const EpisodeSchema: Schema = new Schema({
-  id: { type: String, required: false },
-  name: { type: String, required: false },
+  id: { type: String, required: true },
+  name: { type: String, required: true },
   air_date: { type: String, required: false },
 });
 
 const CharacterSchema: Schema = new Schema({
-  id: { type: String, required: false, unique: true },
-  name: { type: String, required: false },
+  id: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   image: { type: String, required: false },
   species: { type: String, required: false },
   gender: { type: String, required: false },

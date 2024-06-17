@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import CharacterCard from './CharacterCard';
 import '../styles/CharacterList.css';
@@ -55,12 +55,10 @@ const CharactersList = ({
   displayFavorites,
   user,
 }) => {
-  const [page, setPage] = useState(1);
   const [characters, setCharacters] = useState([]);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
 
-  const { loading, error, data, fetchMore } = useQuery(GET_CHARACTERS, {
+  const { loading, error, data } = useQuery(GET_CHARACTERS, {
     variables: { page: 1 },
   });
 
@@ -133,7 +131,6 @@ const CharactersList = ({
           ))}
         </ul>
       )}
-      {loadingMore && <p>Loading more characters...</p>}
     </div>
   );
 };

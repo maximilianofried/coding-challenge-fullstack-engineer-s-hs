@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import CharacterCard from './CharacterCard';
 import '../styles/CharacterList.css';
+
 const GET_CHARACTERS = gql`
   query GetCharacters($page: Int!) {
     getCharacters(page: $page) {
@@ -22,23 +23,52 @@ const GET_CHARACTERS = gql`
   }
 `;
 
-const CharactersList = ({ onToggleFavorite, favorites, displayFavorites }) => {
-  const { loading, error, data } = useQuery(GET_CHARACTERS, {
+const CharactersList = ({
+  favorites,
+  setFavorites,
+  displayFavorites,
+  user,
+}) => {
+  const [page, setPage] = useState(1);
+  const [characters, setCharacters] = useState([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+
+  const { loading, error, data, fetchMore } = useQuery(GET_CHARACTERS, {
     variables: { page: 1 },
   });
-  console.log('CharactersList.js: data', data);
-  const [expandedId, setExpandedId] = useState(null);
+
+  useEffect(() => {
+    if (data) {
+      setCharacters(data.getCharacters);
+    }
+  }, [data]);
+
+  const handleToggleFavorite = id => {
+    let updatedFavorites;
+    if (favorites.includes(id)) {
+      updatedFavorites = favorites.filter(favId => favId !== id);
+    } else {
+      updatedFavorites = [...favorites, id];
+    }
+    setFavorites(updatedFavorites);
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ ...user, favoriteCharacters: updatedFavorites })
+    );
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :( {error.message}</p>;
 
   const charactersToDisplay = displayFavorites
-    ? data.getCharacters.filter(character => favorites.includes(character.id))
-    : data.getCharacters;
+    ? characters.filter(character => favorites.includes(character.id))
+    : characters;
 
   const handleExpand = id => {
     setExpandedId(expandedId === id ? null : id);
   };
+
   return (
     <div className="characters-list">
       {displayFavorites && favorites.length === 0 ? (
@@ -58,13 +88,14 @@ const CharactersList = ({ onToggleFavorite, favorites, displayFavorites }) => {
                 character={character}
                 onExpand={handleExpand}
                 expanded={expandedId === character.id}
-                onToggleFavorite={onToggleFavorite}
+                onToggleFavorite={handleToggleFavorite}
                 isFavorite={favorites.includes(character.id)}
               />
             </li>
           ))}
         </ul>
       )}
+      {loadingMore && <p>Loading more characters...</p>}
     </div>
   );
 };

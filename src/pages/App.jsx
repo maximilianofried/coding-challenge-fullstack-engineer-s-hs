@@ -32,20 +32,6 @@ const App = () => {
     localStorage.removeItem('user');
   };
 
-  const handleToggleFavorite = id => {
-    let updatedFavorites;
-    if (favorites.includes(id)) {
-      updatedFavorites = favorites.filter(favId => favId !== id);
-    } else {
-      updatedFavorites = [...favorites, id];
-    }
-    setFavorites(updatedFavorites);
-    localStorage.setItem(
-      'user',
-      JSON.stringify({ ...user, favoriteCharacters: updatedFavorites })
-    );
-  };
-
   if (!user) {
     return <Login onLogin={handleLogin} />;
   }
@@ -60,9 +46,10 @@ const App = () => {
           user={user}
         />
         <CharactersList
-          onToggleFavorite={handleToggleFavorite}
           favorites={favorites}
+          setFavorites={setFavorites}
           displayFavorites={displayFavorites}
+          user={user}
         />
       </div>
     </Provider>

@@ -22,26 +22,44 @@ const LOGIN = gql`
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
-  const [getUser, { loading: getUserLoading, error: getUserError }] =
-    useLazyQuery(GET_USER);
-  const [login, { loading: loginLoading, error: loginError }] =
-    useMutation(LOGIN);
+  const [error, setError] = useState(null);
+
+  const [getUser, { loading: getUserLoading }] = useLazyQuery(GET_USER, {
+    onCompleted: data => {
+      if (data && data.getUser) {
+        onLogin(data.getUser);
+      } else {
+        handleLogin();
+      }
+    },
+    onError: err => {
+      if (err.message.includes('User not found')) {
+        handleLogin();
+      } else {
+        setError(err.message);
+      }
+    },
+  });
+
+  const [login, { loading: loginLoading }] = useMutation(LOGIN, {
+    onCompleted: data => {
+      if (data && data.login) {
+        onLogin(data.login);
+      }
+    },
+    onError: err => {
+      setError(err.message);
+    },
+  });
 
   const handleSubmit = async e => {
     e.preventDefault();
-    try {
-      const { data: userData } = await getUser({ variables: { username } });
-      if (userData && userData.getUser) {
-        onLogin(userData.getUser);
-      } else {
-        const { data: newUser } = await login({ variables: { username } });
-        if (newUser && newUser.login) {
-          onLogin(newUser.login);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
+    setError(null); // Clear previous errors
+    getUser({ variables: { username } });
+  };
+
+  const handleLogin = () => {
+    login({ variables: { username } });
   };
 
   return (
@@ -60,7 +78,7 @@ const Login = ({ onLogin }) => {
           <button type="submit">Login</button>
         )}
 
-        {(getUserError?.message || loginError?.message) && (
+        {error && (
           <p className="error">
             Error: It's like Rick tried to portal you in, but you ended up in
             Cronenberg world instead. Try again!

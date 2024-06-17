@@ -3,6 +3,7 @@ import { GraphQLError } from 'graphql';
 import axios from 'axios';
 import User from '../models/User';
 import Character, { ICharacter } from '../models/Character';
+import Metadata from '../models/Metadata';
 
 // Define types based on API documentation
 interface Location {
@@ -71,6 +72,18 @@ const fetchAndSaveCharacters = async (page: number): Promise<ICharacter[]> => {
   await Character.deleteMany({ id: { $in: characters.map(char => char.id) } });
   await Character.insertMany(characters as ICharacter[]);
 
+  // Update metadata with the latest total character count and total pages
+  await Metadata.updateOne(
+    { key: 'characterInfo' },
+    {
+      value: {
+        count: data.info.count,
+        pages: data.info.pages,
+      },
+    },
+    { upsert: true }
+  );
+
   return Character.find({
     id: { $in: characters.map(char => char.id) },
   }).exec();
@@ -96,15 +109,32 @@ const resolvers: IResolvers = {
       let characters = (await Character.find({ page }).exec()) as ICharacter[];
 
       const now = Date.now();
+      let totalCharacters = 0;
+      let totalPages = 0;
+
+      // Check if metadata exists
+      const metadata = await Metadata.findOne({ key: 'characterInfo' });
+      if (metadata) {
+        totalCharacters = metadata.value.count;
+        totalPages = metadata.value.pages;
+      }
+
+      // Fetch from API if characters are not in the database or are expired
       if (
         !characters.length ||
         now - characters[0].lastUpdated.getTime() > EXPIRATION_TIME
       ) {
         characters = await fetchAndSaveCharacters(page);
-      }
 
-      const totalCharacters = await Character.countDocuments();
-      const totalPages = Math.ceil(totalCharacters / 20); // assuming 20 items per page
+        // Fetch updated metadata after saving new characters
+        const updatedMetadata = await Metadata.findOne({
+          key: 'characterInfo',
+        });
+        if (updatedMetadata) {
+          totalCharacters = updatedMetadata.value.count;
+          totalPages = updatedMetadata.value.pages;
+        }
+      }
 
       return {
         info: {
@@ -139,7 +169,6 @@ const resolvers: IResolvers = {
       const reversedFavoriteCharacterIds = [
         ...user.favoriteCharacters,
       ].reverse();
-
       const favoriteCharacterIds = reversedFavoriteCharacterIds.slice(
         startIndex,
         endIndex

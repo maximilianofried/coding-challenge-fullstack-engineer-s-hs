@@ -20,7 +20,7 @@ const Navbar = ({ setDisplayFavorites, handleLogout, user }) => {
   return (
     <header className="navbar">
       <a href="/" className="logo">
-        <img src="/Rick_and_Morty.svg" alt="Rick and Morty logo" />
+        <img src="/rick_and_morty.svg" alt="Rick and Morty logo" />
       </a>
 
       <div>

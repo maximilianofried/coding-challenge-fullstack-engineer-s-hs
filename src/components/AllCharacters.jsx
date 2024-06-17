@@ -67,7 +67,7 @@ const AllCharacters = ({ user, refresh }) => {
   const [toggleFavorite] = useMutation(TOGGLE_FAVORITE_CHARACTER);
 
   useEffect(() => {
-    if (userFavoritesData) {
+    if (userFavoritesData && userFavoritesData.getUser) {
       setFavorites(userFavoritesData.getUser.favoriteCharacters);
     }
   }, [userFavoritesData]);
@@ -113,6 +113,7 @@ const AllCharacters = ({ user, refresh }) => {
           </li>
         ))}
       </ul>
+      {'total pages:' + totalPages}
       {totalPages > 1 && (
         <div className="pagination-controls">
           <button

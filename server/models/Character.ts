@@ -31,7 +31,7 @@ const OriginSchema: Schema = new Schema({
 
 const EpisodeSchema: Schema = new Schema({
   id: { type: String, required: true },
-  name: { type: String, required: true },
+  name: { type: String, required: false },
   air_date: { type: String, required: false },
 });
 

@@ -26,7 +26,7 @@ const typeDefs = gql`
 
   type Episode {
     id: ID!
-    name: String!
+    name: String
     air_date: String
   }
 

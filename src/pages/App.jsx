@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ApolloProvider } from '@apollo/client';
 import Provider from '../api/Provider';
 import Login from '../components/Login';
 import AllCharacters from '../components/AllCharacters';
 import FavoriteCharacters from '../components/FavoriteCharacters';
-import '../styles/App.css';
 import Navbar from '../components/Navbar';
+import '../styles/App.css';
 
 const App = () => {
   const [user, setUser] = useState(null);

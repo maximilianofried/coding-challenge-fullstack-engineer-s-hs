@@ -106,7 +106,6 @@ const FavoriteCharacters = ({ user, refresh }) => {
           ))}
         </ul>
       )}
-      <div>{`Total Pages: ${totalPages}, Current Page: ${currentPage}`}</div>
       {totalPages > 1 && (
         <div className="pagination-controls">
           <button

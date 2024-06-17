@@ -7,7 +7,7 @@ export interface IUser extends Document {
 
 const UserSchema: Schema = new Schema({
   username: { type: String, required: true, unique: true },
-  favoriteCharacters: { type: [String], default: [] },
+  favoriteCharacters: [{ type: String }],
 });
 
 export default mongoose.model<IUser>('User', UserSchema);

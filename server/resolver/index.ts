@@ -114,6 +114,19 @@ const resolvers: IResolvers = {
         )
         .slice(0, 3);
     },
+    getFavoriteCharacters: async (_, { username }) => {
+      const user = await User.findOne({ username })
+        .populate('favoriteCharacters')
+        .exec();
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'USER_NOT_FOUND' },
+        });
+      const favoriteCharacters = await Character.find({
+        id: { $in: user.favoriteCharacters },
+      }).exec();
+      return favoriteCharacters;
+    },
   },
   Mutation: {
     login: async (_: any, { username }: { username: string }) => {
@@ -124,11 +137,10 @@ const resolvers: IResolvers = {
       }
       return user;
     },
-    toggleFavoriteCharacter: async (
-      _: any,
-      { username, characterId }: { username: string; characterId: string }
-    ) => {
-      const user = await User.findOne({ username });
+    toggleFavoriteCharacter: async (_, { username, characterId }) => {
+      const user = await User.findOne({ username })
+        .populate('favoriteCharacters')
+        .exec();
       if (!user)
         throw new GraphQLError('User not found', {
           extensions: { code: 'USER_NOT_FOUND' },
@@ -136,14 +148,17 @@ const resolvers: IResolvers = {
 
       if (user.favoriteCharacters.includes(characterId)) {
         user.favoriteCharacters = user.favoriteCharacters.filter(
-          id => id !== characterId
+          favChar => favChar !== characterId
         );
       } else {
         user.favoriteCharacters.push(characterId);
       }
 
       await user.save();
-      return user;
+      const populatedUser = await User.findOne({ username })
+        .populate('favoriteCharacters')
+        .exec();
+      return populatedUser;
     },
   },
 };

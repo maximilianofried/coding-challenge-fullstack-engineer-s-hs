@@ -6,7 +6,21 @@ const GET_USER = gql`
   query GetUser($username: String!) {
     getUser(username: $username) {
       username
-      favoriteCharacters
+      favoriteCharacters {
+        id
+        name
+        image
+        species
+        gender
+        origin {
+          name
+          dimension
+        }
+        status
+        episode {
+          id
+        }
+      }
     }
   }
 `;
@@ -15,7 +29,21 @@ const LOGIN = gql`
   mutation Login($username: String!) {
     login(username: $username) {
       username
-      favoriteCharacters
+      favoriteCharacters {
+        id
+        name
+        image
+        species
+        gender
+        origin {
+          name
+          dimension
+        }
+        status
+        episode {
+          id
+        }
+      }
     }
   }
 `;

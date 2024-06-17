@@ -37,7 +37,7 @@ const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
         <li>Species: {species}</li>
         <li>Gender: {gender}</li>
         <li>Origin: {origin.name}</li>
-        <li>Dimension: {origin.dimension}</li>
+        <li>Dimension: {origin.dimension ? origin.dimension : 'unknown'}</li>
         <li>Status: {status}</li>
       </ul>
       <div className="buttons-wrapper">

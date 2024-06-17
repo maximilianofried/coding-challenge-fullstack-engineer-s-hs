@@ -103,7 +103,18 @@ const resolvers: IResolvers = {
         characters = await fetchAndSaveCharacters(page);
       }
 
-      return characters;
+      const totalCharacters = await Character.countDocuments();
+      const totalPages = Math.ceil(totalCharacters / 20); // assuming 20 items per page
+
+      return {
+        info: {
+          count: totalCharacters,
+          pages: totalPages,
+          next: page < totalPages ? page + 1 : null,
+          prev: page > 1 ? page - 1 : null,
+        },
+        results: characters,
+      };
     },
     getEpisodesByIds: async (_: any, { ids }: { ids: string[] }) => {
       const episodes = await fetchEpisodesByIds(ids);
@@ -121,18 +132,38 @@ const resolvers: IResolvers = {
           extensions: { code: 'USER_NOT_FOUND' },
         });
 
-      const itemsPerPage = 10; // Define items per page
+      const itemsPerPage = 20; // Define items per page
       const startIndex = (page - 1) * itemsPerPage;
       const endIndex = page * itemsPerPage;
 
-      const favoriteCharacterIds = user.favoriteCharacters.slice(
+      const reversedFavoriteCharacterIds = [
+        ...user.favoriteCharacters,
+      ].reverse();
+
+      const favoriteCharacterIds = reversedFavoriteCharacterIds.slice(
         startIndex,
         endIndex
       );
-
-      return await Character.find({
+      const favoriteCharacters = await Character.find({
         id: { $in: favoriteCharacterIds },
       }).exec();
+
+      const totalFavorites = user.favoriteCharacters.length;
+      const totalPages = Math.ceil(totalFavorites / itemsPerPage);
+
+      const sortedFavoriteCharacters = favoriteCharacterIds.map(id =>
+        favoriteCharacters.find(character => character.id === id)
+      );
+
+      return {
+        info: {
+          count: totalFavorites,
+          pages: totalPages,
+          next: page < totalPages ? page + 1 : null,
+          prev: page > 1 ? page - 1 : null,
+        },
+        results: sortedFavoriteCharacters,
+      };
     },
   },
   Mutation: {
@@ -145,6 +176,7 @@ const resolvers: IResolvers = {
       return user;
     },
     toggleFavoriteCharacter: async (_, { username, characterId }) => {
+      console.log('Toggle favorite character', username, characterId);
       const user = await User.findOne({ username }).exec();
       if (!user)
         throw new GraphQLError('User not found', {

@@ -1,35 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { ApolloProvider } from '@apollo/client';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
 import Provider from '../api/Provider';
 import Login from '../components/Login';
-import CharactersList from '../components/CharactersList';
-import '../styles/App.css';
+import AllCharacters from '../components/AllCharacters';
+import FavoriteCharacters from '../components/FavoriteCharacters';
 import Navbar from '../components/Navbar';
+import '../styles/App.css';
 
 const App = () => {
   const [user, setUser] = useState(null);
-  const [favorites, setFavorites] = useState([]);
-  const [displayFavorites, setDisplayFavorites] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      setFavorites(parsedUser.favoriteCharacters || []);
     }
   }, []);
 
   const handleLogin = userData => {
     setUser(userData);
-    setFavorites(userData.favoriteCharacters || []);
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const handleLogout = () => {
     setUser(null);
-    setFavorites([]);
     localStorage.removeItem('user');
+  };
+
+  const handleDisplayFavoritesToggle = () => {
+    setRefresh(!refresh);
   };
 
   if (!user) {
@@ -38,20 +44,26 @@ const App = () => {
 
   return (
     <Provider>
-      <div className="App">
-        <Navbar
-          displayFavorites={displayFavorites}
-          setDisplayFavorites={setDisplayFavorites}
-          handleLogout={handleLogout}
-          user={user}
-        />
-        <CharactersList
-          favorites={favorites}
-          setFavorites={setFavorites}
-          displayFavorites={displayFavorites}
-          user={user}
-        />
-      </div>
+      <Router>
+        <div className="App">
+          <Navbar
+            setDisplayFavorites={handleDisplayFavoritesToggle}
+            handleLogout={handleLogout}
+            user={user}
+          />
+          <Routes>
+            <Route path="/" element={<Navigate to="/characters" />} />
+            <Route
+              path="/characters"
+              element={<AllCharacters user={user} refresh={refresh} />}
+            />
+            <Route
+              path="/favorites"
+              element={<FavoriteCharacters user={user} refresh={refresh} />}
+            />
+          </Routes>
+        </div>
+      </Router>
     </Provider>
   );
 };

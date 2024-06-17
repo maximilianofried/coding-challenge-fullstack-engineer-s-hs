@@ -15,7 +15,7 @@ const Navbar = ({
           {displayFavorites ? 'Display All' : 'Display Favorites'}
         </button>
         <button onClick={handleLogout}>Logout</button>
-        <button>{user.username}</button>
+        {user && <button>{user.username}</button>}
       </div>
     </header>
   );

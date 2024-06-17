@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { useSearchParams } from 'react-router-dom';
 import CharacterCard from './CharacterCard';
 import '../styles/CharacterList.css';
 
@@ -48,7 +49,9 @@ const TOGGLE_FAVORITE_CHARACTER = gql`
 const AllCharacters = ({ user, refresh }) => {
   const [favorites, setFavorites] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = parseInt(searchParams.get('page')) || 1;
 
   const { loading, error, data, refetch } = useQuery(GET_CHARACTERS, {
     variables: { page: currentPage },
@@ -78,7 +81,7 @@ const AllCharacters = ({ user, refresh }) => {
   };
 
   const handlePageChange = page => {
-    setCurrentPage(page);
+    setSearchParams({ page });
     refetch({ page });
   };
 

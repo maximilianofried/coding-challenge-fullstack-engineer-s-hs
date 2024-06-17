@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
 import Provider from '../api/Provider';
 import Login from '../components/Login';
 import AllCharacters from '../components/AllCharacters';
@@ -8,7 +14,6 @@ import '../styles/App.css';
 
 const App = () => {
   const [user, setUser] = useState(null);
-  const [displayFavorites, setDisplayFavorites] = useState(false);
   const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
@@ -30,7 +35,6 @@ const App = () => {
   };
 
   const handleDisplayFavoritesToggle = () => {
-    setDisplayFavorites(!displayFavorites);
     setRefresh(!refresh);
   };
 
@@ -40,19 +44,26 @@ const App = () => {
 
   return (
     <Provider>
-      <div className="App">
-        <Navbar
-          displayFavorites={displayFavorites}
-          setDisplayFavorites={handleDisplayFavoritesToggle}
-          handleLogout={handleLogout}
-          user={user}
-        />
-        {displayFavorites ? (
-          <FavoriteCharacters user={user} refresh={refresh} />
-        ) : (
-          <AllCharacters user={user} refresh={refresh} />
-        )}
-      </div>
+      <Router>
+        <div className="App">
+          <Navbar
+            setDisplayFavorites={handleDisplayFavoritesToggle}
+            handleLogout={handleLogout}
+            user={user}
+          />
+          <Routes>
+            <Route path="/" element={<Navigate to="/characters" />} />
+            <Route
+              path="/characters"
+              element={<AllCharacters user={user} refresh={refresh} />}
+            />
+            <Route
+              path="/favorites"
+              element={<FavoriteCharacters user={user} refresh={refresh} />}
+            />
+          </Routes>
+        </div>
+      </Router>
     </Provider>
   );
 };

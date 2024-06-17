@@ -30,11 +30,23 @@ const typeDefs = gql`
     air_date: String
   }
 
+  type PageInfo {
+    count: Int
+    pages: Int
+    next: Int
+    prev: Int
+  }
+
+  type CharactersResult {
+    info: PageInfo
+    results: [Character]
+  }
+
   type Query {
     getUser(username: String!): User
-    getCharacters(page: Int): [Character]
+    getCharacters(page: Int): CharactersResult
     getEpisodesByIds(ids: [ID!]!): [Episode!]!
-    getFavoriteCharacters(username: String!, page: Int): [Character]
+    getFavoriteCharacters(username: String!, page: Int): CharactersResult
   }
 
   type Mutation {

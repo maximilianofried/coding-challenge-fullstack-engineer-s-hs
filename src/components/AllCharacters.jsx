@@ -6,18 +6,26 @@ import '../styles/CharacterList.css';
 const GET_CHARACTERS = gql`
   query GetCharacters($page: Int!) {
     getCharacters(page: $page) {
-      id
-      name
-      image
-      species
-      gender
-      origin {
-        name
-        dimension
+      info {
+        count
+        pages
+        next
+        prev
       }
-      status
-      episode {
+      results {
         id
+        name
+        image
+        species
+        gender
+        origin {
+          name
+          dimension
+        }
+        status
+        episode {
+          id
+        }
       }
     }
   }
@@ -27,7 +35,6 @@ const AllCharacters = ({ favorites, handleToggleFavorite }) => {
   const [characters, setCharacters] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
 
   const { loading, error, data } = useQuery(GET_CHARACTERS, {
     variables: { page: currentPage },
@@ -35,7 +42,7 @@ const AllCharacters = ({ favorites, handleToggleFavorite }) => {
 
   useEffect(() => {
     if (data) {
-      setCharacters(data.getCharacters);
+      setCharacters(data.getCharacters.results);
     }
   }, [data]);
 
@@ -50,12 +57,13 @@ const AllCharacters = ({ favorites, handleToggleFavorite }) => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :( {error.message}</p>;
 
-  const totalPages = Math.ceil(characters.length / itemsPerPage);
+  const { info, results: charactersList } = data.getCharacters;
+  const totalPages = info.pages;
 
   return (
     <div className="characters-list">
       <ul className="character-cards">
-        {characters.map(character => (
+        {charactersList.map(character => (
           <li key={character.id}>
             <CharacterCard
               character={character}
@@ -67,17 +75,18 @@ const AllCharacters = ({ favorites, handleToggleFavorite }) => {
           </li>
         ))}
       </ul>
+      <div>{`Total Pages: ${totalPages}, Current Page: ${currentPage}`}</div>
       {totalPages > 1 && (
         <div className="pagination-controls">
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            onClick={() => handlePageChange(info.prev)}
+            disabled={!info.prev}
           >
             Previous
           </button>
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={characters.length < itemsPerPage}
+            onClick={() => handlePageChange(info.next)}
+            disabled={!info.next}
           >
             Next
           </button>

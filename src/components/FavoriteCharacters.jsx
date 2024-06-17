@@ -6,18 +6,26 @@ import '../styles/CharacterList.css';
 const GET_FAVORITE_CHARACTERS = gql`
   query GetFavoriteCharacters($username: String!, $page: Int!) {
     getFavoriteCharacters(username: $username, page: $page) {
-      id
-      name
-      image
-      species
-      gender
-      origin {
-        name
-        dimension
+      info {
+        count
+        pages
+        next
+        prev
       }
-      status
-      episode {
+      results {
         id
+        name
+        image
+        species
+        gender
+        origin {
+          name
+          dimension
+        }
+        status
+        episode {
+          id
+        }
       }
     }
   }
@@ -31,19 +39,14 @@ const FavoriteCharacters = ({
 }) => {
   const [expandedId, setExpandedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
 
-  const { loading, error, data, refetch } = useQuery(GET_FAVORITE_CHARACTERS, {
+  const { loading, error, data } = useQuery(GET_FAVORITE_CHARACTERS, {
     variables: { username: user.username, page: currentPage },
   });
 
   useEffect(() => {
-    refetch();
-  }, [refetch]);
-
-  useEffect(() => {
     if (data) {
-      setFavorites(data.getFavoriteCharacters.map(char => char.id));
+      setFavorites(data.getFavoriteCharacters.results.map(char => char.id));
     }
   }, [data, setFavorites]);
 
@@ -66,11 +69,8 @@ const FavoriteCharacters = ({
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :( {error.message}</p>;
 
-  const charactersToDisplay = data
-    ? data.getFavoriteCharacters.filter(char => favorites.includes(char.id))
-    : [];
-
-  const totalPages = Math.ceil(charactersToDisplay.length / itemsPerPage);
+  const { info, results: charactersToDisplay } = data.getFavoriteCharacters;
+  const totalPages = info.pages;
 
   return (
     <div className="characters-list">
@@ -98,17 +98,18 @@ const FavoriteCharacters = ({
           ))}
         </ul>
       )}
+      <div>{`Total Pages: ${totalPages}, Current Page: ${currentPage}`}</div>
       {totalPages > 1 && (
         <div className="pagination-controls">
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            onClick={() => handlePageChange(info.prev)}
+            disabled={!info.prev}
           >
             Previous
           </button>
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={charactersToDisplay.length < itemsPerPage}
+            onClick={() => handlePageChange(info.next)}
+            disabled={!info.next}
           >
             Next
           </button>

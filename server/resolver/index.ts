@@ -103,7 +103,18 @@ const resolvers: IResolvers = {
         characters = await fetchAndSaveCharacters(page);
       }
 
-      return characters;
+      const totalCharacters = await Character.countDocuments();
+      const totalPages = Math.ceil(totalCharacters / 20); // assuming 20 items per page
+
+      return {
+        info: {
+          count: totalCharacters,
+          pages: totalPages,
+          next: page < totalPages ? page + 1 : null,
+          prev: page > 1 ? page - 1 : null,
+        },
+        results: characters,
+      };
     },
     getEpisodesByIds: async (_: any, { ids }: { ids: string[] }) => {
       const episodes = await fetchEpisodesByIds(ids);
@@ -121,7 +132,7 @@ const resolvers: IResolvers = {
           extensions: { code: 'USER_NOT_FOUND' },
         });
 
-      const itemsPerPage = 10; // Define items per page
+      const itemsPerPage = 20; // Define items per page
       const startIndex = (page - 1) * itemsPerPage;
       const endIndex = page * itemsPerPage;
 
@@ -130,9 +141,22 @@ const resolvers: IResolvers = {
         endIndex
       );
 
-      return await Character.find({
+      const favoriteCharacters = await Character.find({
         id: { $in: favoriteCharacterIds },
       }).exec();
+
+      const totalFavorites = user.favoriteCharacters.length;
+      const totalPages = Math.ceil(totalFavorites / itemsPerPage);
+
+      return {
+        info: {
+          count: totalFavorites,
+          pages: totalPages,
+          next: page < totalPages ? page + 1 : null,
+          prev: page > 1 ? page - 1 : null,
+        },
+        results: favoriteCharacters,
+      };
     },
   },
   Mutation: {

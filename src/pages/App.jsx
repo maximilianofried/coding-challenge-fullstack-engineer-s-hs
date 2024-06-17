@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ApolloProvider, useMutation, gql, useQuery } from '@apollo/client';
+import { ApolloProvider, useMutation, useQuery, gql } from '@apollo/client';
 import Provider from '../api/Provider';
 import Login from '../components/Login';
 import AllCharacters from '../components/AllCharacters';
@@ -13,22 +13,10 @@ const TOGGLE_FAVORITE_CHARACTER = gql`
   }
 `;
 
-const GET_FAVORITE_CHARACTERS = gql`
-  query GetFavoriteCharacters($username: String!) {
-    getFavoriteCharacters(username: $username) {
-      id
-      name
-      image
-      species
-      gender
-      origin {
-        name
-        dimension
-      }
-      status
-      episode {
-        id
-      }
+const GET_USER_FAVORITES = gql`
+  query GetUserFavorites($username: String!) {
+    getUser(username: $username) {
+      favoriteCharacters
     }
   }
 `;
@@ -39,12 +27,11 @@ const App = () => {
   const [displayFavorites, setDisplayFavorites] = useState(false);
 
   const [toggleFavorite] = useMutation(TOGGLE_FAVORITE_CHARACTER);
-
-  const { data: favoriteData, refetch: refetchFavorites } = useQuery(
-    GET_FAVORITE_CHARACTERS,
+  const { data: userFavoritesData, refetch: refetchUserFavorites } = useQuery(
+    GET_USER_FAVORITES,
     {
       variables: { username: user ? user.username : '' },
-      skip: !user, // Skip this query if user is not logged in
+      skip: !user,
     }
   );
 
@@ -57,21 +44,15 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      refetchFavorites();
+    if (user && userFavoritesData) {
+      setFavorites(userFavoritesData.getUser.favoriteCharacters);
     }
-  }, [user, refetchFavorites]);
-
-  useEffect(() => {
-    if (favoriteData && favoriteData.getFavoriteCharacters) {
-      setFavorites(favoriteData.getFavoriteCharacters.map(char => char.id));
-    }
-  }, [favoriteData]);
+  }, [user, userFavoritesData]);
 
   const handleLogin = userData => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    refetchFavorites();
+    refetchUserFavorites();
   };
 
   const handleLogout = () => {
@@ -92,7 +73,7 @@ const App = () => {
     await toggleFavorite({
       variables: { username: user.username, characterId: id },
     });
-    refetchFavorites();
+    refetchUserFavorites();
   };
 
   if (!user) {

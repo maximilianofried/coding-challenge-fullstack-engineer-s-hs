@@ -55,9 +55,11 @@ const CharactersList = ({
   displayFavorites,
   user,
 }) => {
+  const [characters, setCharacters] = useState([]); // Local state to store fetched characters
+  const [expandedId, setExpandedId] = useState(null); // State to track expanded character card
   const [currentPage, setCurrentPage] = useState(1); // State to track the current page for pagination
   const [itemsPerPage] = useState(10); // Define items per page for pagination
-  const [expandedId, setExpandedId] = useState(null);
+
   const { loading, error, data } = useQuery(GET_CHARACTERS, {
     variables: { page: currentPage }, // Use current page state for query
   });
@@ -69,12 +71,19 @@ const CharactersList = ({
   const [toggleFavorite] = useMutation(TOGGLE_FAVORITE_CHARACTER);
 
   useEffect(() => {
+    if (data) {
+      setCharacters(data.getCharacters);
+    }
+  }, [data]);
+
+  useEffect(() => {
     if (favoriteData) {
       setFavorites(favoriteData.getFavoriteCharacters.map(char => char.id));
     }
   }, [favoriteData, setFavorites]);
 
   useEffect(() => {
+    // Reset page counter when displayFavorites changes
     setCurrentPage(1);
   }, [displayFavorites]);
 
@@ -105,12 +114,13 @@ const CharactersList = ({
 
   // Determine which characters to display based on the current view (all characters or favorites)
   const charactersToDisplay = displayFavorites
-    ? favoriteData
-      ? favoriteData.getFavoriteCharacters
-      : []
+    ? characters.filter(character => favorites.includes(character.id)) // Filter characters to display based on updated favorites
     : data
       ? data.getCharacters
       : [];
+
+  // Calculate total pages
+  const totalPages = Math.ceil(charactersToDisplay.length / itemsPerPage);
 
   return (
     <div className="characters-list">
@@ -138,21 +148,22 @@ const CharactersList = ({
           ))}
         </ul>
       )}
-      <div className="pagination-controls">
-        {/* Pagination buttons to change the page */}
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={charactersToDisplay.length < itemsPerPage}
-        >
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && ( // Conditionally render pagination controls
+        <div className="pagination-controls">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={charactersToDisplay.length < itemsPerPage}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

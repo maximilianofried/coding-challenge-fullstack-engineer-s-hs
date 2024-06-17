@@ -24,8 +24,8 @@ const GET_CHARACTERS = gql`
 `;
 
 export const GET_FAVORITE_CHARACTERS = gql`
-  query GetFavoriteCharacters($username: String!) {
-    getFavoriteCharacters(username: $username) {
+  query GetFavoriteCharacters($username: String!, $page: Int!) {
+    getFavoriteCharacters(username: $username, page: $page) {
       id
       name
       image
@@ -55,30 +55,28 @@ const CharactersList = ({
   displayFavorites,
   user,
 }) => {
-  const [characters, setCharacters] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // State to track the current page for pagination
+  const [itemsPerPage] = useState(10); // Define items per page for pagination
   const [expandedId, setExpandedId] = useState(null);
-
   const { loading, error, data } = useQuery(GET_CHARACTERS, {
-    variables: { page: 1 },
+    variables: { page: currentPage }, // Use current page state for query
   });
 
   const { data: favoriteData } = useQuery(GET_FAVORITE_CHARACTERS, {
-    variables: { username: user.username },
+    variables: { username: user.username, page: currentPage }, // Fetch favorite characters for the current page
   });
 
   const [toggleFavorite] = useMutation(TOGGLE_FAVORITE_CHARACTER);
-
-  useEffect(() => {
-    if (data) {
-      setCharacters(data.getCharacters);
-    }
-  }, [data]);
 
   useEffect(() => {
     if (favoriteData) {
       setFavorites(favoriteData.getFavoriteCharacters.map(char => char.id));
     }
   }, [favoriteData, setFavorites]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [displayFavorites]);
 
   const handleToggleFavorite = async id => {
     let updatedFavorites;
@@ -94,16 +92,25 @@ const CharactersList = ({
     });
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {error.message}</p>;
-
-  const charactersToDisplay = displayFavorites
-    ? characters.filter(character => favorites.includes(character.id))
-    : characters;
-
   const handleExpand = id => {
     setExpandedId(expandedId === id ? null : id);
   };
+
+  const handlePageChange = page => {
+    setCurrentPage(page); // Update current page state
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :( {error.message}</p>;
+
+  // Determine which characters to display based on the current view (all characters or favorites)
+  const charactersToDisplay = displayFavorites
+    ? favoriteData
+      ? favoriteData.getFavoriteCharacters
+      : []
+    : data
+      ? data.getCharacters
+      : [];
 
   return (
     <div className="characters-list">
@@ -131,6 +138,21 @@ const CharactersList = ({
           ))}
         </ul>
       )}
+      <div className="pagination-controls">
+        {/* Pagination buttons to change the page */}
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={charactersToDisplay.length < itemsPerPage}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

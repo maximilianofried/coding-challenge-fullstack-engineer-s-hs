@@ -114,15 +114,24 @@ const resolvers: IResolvers = {
         )
         .slice(0, 3);
     },
-    getFavoriteCharacters: async (_, { username }) => {
+    getFavoriteCharacters: async (_, { username, page = 1 }) => {
       const user = await User.findOne({ username }).exec();
       if (!user)
         throw new GraphQLError('User not found', {
           extensions: { code: 'USER_NOT_FOUND' },
         });
 
+      const itemsPerPage = 10; // Define items per page
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = page * itemsPerPage;
+
+      const favoriteCharacterIds = user.favoriteCharacters.slice(
+        startIndex,
+        endIndex
+      );
+
       return await Character.find({
-        id: { $in: user.favoriteCharacters },
+        id: { $in: favoriteCharacterIds },
       }).exec();
     },
   },

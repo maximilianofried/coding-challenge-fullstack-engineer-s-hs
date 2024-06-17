@@ -34,7 +34,7 @@ const typeDefs = gql`
     getUser(username: String!): User
     getCharacters(page: Int): [Character]
     getEpisodesByIds(ids: [ID!]!): [Episode!]!
-    getFavoriteCharacters(username: String!): [Character]
+    getFavoriteCharacters(username: String!, page: Int): [Character]
   }
 
   type Mutation {

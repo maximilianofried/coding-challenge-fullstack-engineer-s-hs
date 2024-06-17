@@ -13,6 +13,7 @@ const GET_EPISODES_BY_IDS = gql`
 `;
 
 const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
+  console.log('isFavorite', isFavorite);
   const { id, name, image, species, gender, origin, status, episode } =
     character;
   const [expanded, setExpanded] = useState(false);

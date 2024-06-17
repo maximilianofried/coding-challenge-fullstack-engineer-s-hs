@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import CharacterCard from './CharacterCard';
 import '../styles/CharacterList.css';
 
@@ -31,20 +31,43 @@ const GET_CHARACTERS = gql`
   }
 `;
 
-const AllCharacters = ({ favorites, handleToggleFavorite }) => {
-  const [characters, setCharacters] = useState([]);
+const GET_USER_FAVORITES = gql`
+  query GetUserFavorites($username: String!) {
+    getUser(username: $username) {
+      favoriteCharacters
+    }
+  }
+`;
+
+const TOGGLE_FAVORITE_CHARACTER = gql`
+  mutation ToggleFavoriteCharacter($username: String!, $characterId: String!) {
+    toggleFavoriteCharacter(username: $username, characterId: $characterId)
+  }
+`;
+
+const AllCharacters = ({ user }) => {
+  const [favorites, setFavorites] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { loading, error, data } = useQuery(GET_CHARACTERS, {
+  const { loading, error, data, refetch } = useQuery(GET_CHARACTERS, {
     variables: { page: currentPage },
   });
 
-  useEffect(() => {
-    if (data) {
-      setCharacters(data.getCharacters.results);
+  const { data: userFavoritesData, refetch: refetchUserFavorites } = useQuery(
+    GET_USER_FAVORITES,
+    {
+      variables: { username: user.username },
     }
-  }, [data]);
+  );
+
+  const [toggleFavorite] = useMutation(TOGGLE_FAVORITE_CHARACTER);
+
+  useEffect(() => {
+    if (userFavoritesData) {
+      setFavorites(userFavoritesData.getUser.favoriteCharacters);
+    }
+  }, [userFavoritesData]);
 
   const handleExpand = id => {
     setExpandedId(expandedId === id ? null : id);
@@ -52,6 +75,14 @@ const AllCharacters = ({ favorites, handleToggleFavorite }) => {
 
   const handlePageChange = page => {
     setCurrentPage(page);
+    refetch({ page });
+  };
+
+  const handleToggleFavorite = async id => {
+    await toggleFavorite({
+      variables: { username: user.username, characterId: id },
+    });
+    refetchUserFavorites();
   };
 
   if (loading) return <p>Loading...</p>;

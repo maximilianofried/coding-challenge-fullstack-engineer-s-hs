@@ -136,17 +136,24 @@ const resolvers: IResolvers = {
       const startIndex = (page - 1) * itemsPerPage;
       const endIndex = page * itemsPerPage;
 
-      const favoriteCharacterIds = user.favoriteCharacters.slice(
+      const reversedFavoriteCharacterIds = [
+        ...user.favoriteCharacters,
+      ].reverse();
+
+      const favoriteCharacterIds = reversedFavoriteCharacterIds.slice(
         startIndex,
         endIndex
       );
-
       const favoriteCharacters = await Character.find({
         id: { $in: favoriteCharacterIds },
       }).exec();
 
       const totalFavorites = user.favoriteCharacters.length;
       const totalPages = Math.ceil(totalFavorites / itemsPerPage);
+
+      const sortedFavoriteCharacters = favoriteCharacterIds.map(id =>
+        favoriteCharacters.find(character => character.id === id)
+      );
 
       return {
         info: {
@@ -155,7 +162,7 @@ const resolvers: IResolvers = {
           next: page < totalPages ? page + 1 : null,
           prev: page > 1 ? page - 1 : null,
         },
-        results: favoriteCharacters,
+        results: sortedFavoriteCharacters,
       };
     },
   },

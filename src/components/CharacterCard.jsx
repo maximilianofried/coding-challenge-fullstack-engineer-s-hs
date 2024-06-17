@@ -33,7 +33,9 @@ const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
   return (
     <div className={`character-card ${expanded ? 'expanded' : ''}`}>
       <img className="avatar" src={image} alt={name} />
-      <h2 className="name">{name}</h2>
+      <h2 className="name">
+        {name} {id}
+      </h2>
       <ul className="character-info">
         <li>Species: {species}</li>
         <li>Gender: {gender}</li>

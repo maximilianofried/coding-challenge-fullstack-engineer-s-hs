@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import CharacterCard from './CharacterCard';
 import '../styles/CharacterList.css';
 
@@ -31,24 +31,28 @@ const GET_FAVORITE_CHARACTERS = gql`
   }
 `;
 
-const FavoriteCharacters = ({
-  favorites,
-  setFavorites,
-  user,
-  handleToggleFavorite,
-}) => {
+const TOGGLE_FAVORITE_CHARACTER = gql`
+  mutation ToggleFavoriteCharacter($username: String!, $characterId: String!) {
+    toggleFavoriteCharacter(username: $username, characterId: $characterId)
+  }
+`;
+
+const FavoriteCharacters = ({ user }) => {
+  const [favorites, setFavorites] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { loading, error, data } = useQuery(GET_FAVORITE_CHARACTERS, {
+  const { loading, error, data, refetch } = useQuery(GET_FAVORITE_CHARACTERS, {
     variables: { username: user.username, page: currentPage },
   });
+
+  const [toggleFavorite] = useMutation(TOGGLE_FAVORITE_CHARACTER);
 
   useEffect(() => {
     if (data) {
       setFavorites(data.getFavoriteCharacters.results.map(char => char.id));
     }
-  }, [data, setFavorites]);
+  }, [data]);
 
   const handleExpand = id => {
     setExpandedId(expandedId === id ? null : id);
@@ -56,14 +60,14 @@ const FavoriteCharacters = ({
 
   const handlePageChange = page => {
     setCurrentPage(page);
+    refetch({ username: user.username, page });
   };
 
-  const handleToggleFavoriteAndUpdate = async id => {
-    await handleToggleFavorite(id);
-    setFavorites(prevFavorites => {
-      const updatedFavorites = prevFavorites.filter(favId => favId !== id);
-      return updatedFavorites;
+  const handleToggleFavorite = async id => {
+    await toggleFavorite({
+      variables: { username: user.username, characterId: id },
     });
+    refetch();
   };
 
   if (loading) return <p>Loading...</p>;
@@ -91,7 +95,7 @@ const FavoriteCharacters = ({
                 character={character}
                 onExpand={handleExpand}
                 expanded={expandedId === character.id}
-                onToggleFavorite={handleToggleFavoriteAndUpdate}
+                onToggleFavorite={handleToggleFavorite}
                 isFavorite={favorites.includes(character.id)}
               />
             </li>

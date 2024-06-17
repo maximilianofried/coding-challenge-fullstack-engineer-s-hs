@@ -11,7 +11,7 @@ const Navbar = ({
     <header className="navbar">
       <img src="/Rick_and_Morty.svg" alt="Rick and Morty logo" />
       <div>
-        <button onClick={() => setDisplayFavorites(!displayFavorites)}>
+        <button onClick={setDisplayFavorites}>
           {displayFavorites ? 'Display All' : 'Display Favorites'}
         </button>
         <button onClick={handleLogout}>Logout</button>

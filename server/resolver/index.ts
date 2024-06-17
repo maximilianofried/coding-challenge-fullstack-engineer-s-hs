@@ -205,7 +205,6 @@ const resolvers: IResolvers = {
       return user;
     },
     toggleFavoriteCharacter: async (_, { username, characterId }) => {
-      console.log('Toggle favorite character', username, characterId);
       const user = await User.findOne({ username }).exec();
       if (!user)
         throw new GraphQLError('User not found', {

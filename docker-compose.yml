@@ -7,23 +7,25 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
-    environment:
-      - REACT_APP_GRAPHQL_URI=http://backend:4000
+    env_file:
+      - .env
 
   backend:
     build:
       context: ./server
     ports:
       - '4000:4000'
+    env_file:
+      - ./server/.env.development.local
     environment:
-      - MONGO_URI=mongodb://mongo:27017/rickmorty
+      - NODE_ENV=production
     depends_on:
       - mongo
 
   mongo:
     image: mongo:latest
     ports:
-      - '27017:27017'
+      - '27018:27017'
     volumes:
       - mongo-data:/data/db
 

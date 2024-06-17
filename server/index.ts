@@ -5,7 +5,15 @@ import resolvers from './resolver';
 import connectDB from './db';
 import dotenv from 'dotenv';
 
-dotenv.config();
+// Load environment variables from the correct file
+if (process.env.NODE_ENV === 'local') {
+  dotenv.config({ path: '.env.local' });
+} else {
+  dotenv.config({ path: '.env.development.local' });
+}
+
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 const startServer = async () => {
   // Connect to the database

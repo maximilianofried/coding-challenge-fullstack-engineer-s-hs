@@ -113,7 +113,6 @@ const AllCharacters = ({ user, refresh }) => {
           </li>
         ))}
       </ul>
-      {'total pages:' + totalPages}
       {totalPages > 1 && (
         <div className="pagination-controls">
           <button

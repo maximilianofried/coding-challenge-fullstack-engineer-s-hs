@@ -19,7 +19,10 @@ const Navbar = ({ setDisplayFavorites, handleLogout, user }) => {
 
   return (
     <header className="navbar">
-      <img src="/Rick_and_Morty.svg" alt="Rick and Morty logo" />
+      <a href="/" className="logo">
+        <img src="/Rick_and_Morty.svg" alt="Rick and Morty logo" />
+      </a>
+
       <div>
         <button onClick={handleDisplayFavoritesToggle}>
           {displayFavorites ? 'Display All' : 'Display Favorites'}

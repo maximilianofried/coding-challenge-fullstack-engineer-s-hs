@@ -20,6 +20,8 @@ const App = () => {
   const [user, setUser] = useState(null);
   // State to trigger a refresh of the character list
   const [refresh, setRefresh] = useState(false);
+  // State to indicate if the app is loading the user data
+  const [loading, setLoading] = useState(true);
 
   // Effect to load the user from local storage when the component mounts
   useEffect(() => {
@@ -28,6 +30,7 @@ const App = () => {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
     }
+    setLoading(false);
   }, []);
 
   /**
@@ -53,6 +56,10 @@ const App = () => {
   const handleDisplayFavoritesToggle = () => {
     setRefresh(!refresh);
   };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <Provider>
@@ -105,7 +112,12 @@ const App = () => {
               }
             />
             {/* Catch-all route redirects to root */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route
+              path="*"
+              element={
+                user ? <Navigate to="/characters" /> : <Navigate to="/" />
+              }
+            />
           </Routes>
         </div>
       </Router>

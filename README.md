@@ -12,7 +12,7 @@ This project is a web application that interacts with the Rick and Morty GraphQL
    - If the username does not exist, a new user is created.
    - If the username exists, the user's data is retrieved.
    - Includes a logout button that returns the user to the login screen.
-   - User sessions are preserved across page reloads until logout.
+   - User sessions are preserved across page reloads until logout using local storage.
 
 2. **Routing**
 
@@ -41,8 +41,8 @@ This project is a web application that interacts with the Rick and Morty GraphQL
 
 5. **Favorite Characters**
 
-   - Each card has a "favorite" button to mark/unmark characters as favorites.
-   - A "Display favorites" button toggles between showing all characters and only favorites.
+   - Each card has a "favorite" button (star icon) to mark/unmark characters as favorites.
+   - A "Display favorites" button in the navbar toggles between showing all characters and only favorites.
    - Favorite characters are preserved across page reloads and per user.
 
 6. **Pagination**

@@ -7,8 +7,7 @@ import {
 } from 'react-router-dom';
 import Provider from '../api/Provider';
 import Login from '../components/Login';
-import AllCharacters from '../components/AllCharacters';
-import FavoriteCharacters from '../components/FavoriteCharacters';
+import CharactersList from '../components/CharactersList';
 import Navbar from '../components/Navbar';
 import '../styles/App.css';
 
@@ -55,11 +54,19 @@ const App = () => {
             <Route path="/" element={<Navigate to="/characters" />} />
             <Route
               path="/characters"
-              element={<AllCharacters user={user} refresh={refresh} />}
+              element={
+                <CharactersList user={user} refresh={refresh} type="all" />
+              }
             />
             <Route
               path="/favorites"
-              element={<FavoriteCharacters user={user} refresh={refresh} />}
+              element={
+                <CharactersList
+                  user={user}
+                  refresh={refresh}
+                  type="favorites"
+                />
+              }
             />
           </Routes>
         </div>

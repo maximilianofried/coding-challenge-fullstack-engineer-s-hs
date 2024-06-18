@@ -1,24 +1,7 @@
 import React, { useState } from 'react';
-import { useLazyQuery, useMutation, gql } from '@apollo/client';
-import '../styles/Login.css'; // make sure this path is correct
-
-const GET_USER = gql`
-  query GetUser($username: String!) {
-    getUser(username: $username) {
-      username
-      favoriteCharacters
-    }
-  }
-`;
-
-const LOGIN = gql`
-  mutation Login($username: String!) {
-    login(username: $username) {
-      username
-      favoriteCharacters
-    }
-  }
-`;
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { GET_USER, LOGIN } from '../api/queries';
+import '../styles/Login.css';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');

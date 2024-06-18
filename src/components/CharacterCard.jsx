@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
-import { gql, useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
+import { GET_EPISODES_BY_IDS } from '../api/queries';
 import '../styles/CharacterCard.css';
-
-const GET_EPISODES_BY_IDS = gql`
-  query GetEpisodesByIds($ids: [ID!]!) {
-    getEpisodesByIds(ids: $ids) {
-      id
-      name
-      air_date
-    }
-  }
-`;
 
 const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
   const { id, name, image, species, gender, origin, status, episode } =
@@ -35,7 +26,7 @@ const CharacterCard = ({ character, onToggleFavorite, isFavorite }) => {
       <h2 className="name">
         {name} {id}
       </h2>
-      <ul className="character-info">
+      <ul>
         <li>Species: {species}</li>
         <li>Gender: {gender}</li>
         <li>Origin: {origin.name}</li>

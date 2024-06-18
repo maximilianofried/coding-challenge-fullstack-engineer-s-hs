@@ -4,7 +4,10 @@
 
 .character-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(clamp(250px, 50vw, 400px), 1fr)
+  );
   grid-gap: 1rem;
   list-style-type: none;
   padding: 0;

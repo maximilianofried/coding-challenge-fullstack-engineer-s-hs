@@ -13,7 +13,8 @@
 .character-card .avatar {
   width: 100%;
   height: 100%;
-  border-radius: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
 .character-card .name {
@@ -47,19 +48,9 @@ li {
   list-style: none;
 }
 
-.favorite-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .favorite-button .star-icon {
   width: 24px;
   height: 24px;
-  transition: transform 0.25s cubic-bezier(0.77, 0, 0.17, 1);
 }
 
 .favorite-button.favorite .star-icon {

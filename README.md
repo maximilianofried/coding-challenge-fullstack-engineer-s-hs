@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a web application that interacts with the Rick and Morty GraphQL API to display character information. The application allows users to log in, view character details, expand character cards to see recent episodes, and mark characters as favorites.
+This project is a web application that interacts with the Rick and Morty GraphQL API to display character information. The application allows users to log in, view character details, expand character cards to see last episodes, and mark characters as favorites.
 
 ## Features
 
@@ -14,7 +14,14 @@ This project is a web application that interacts with the Rick and Morty GraphQL
    - Includes a logout button that returns the user to the login screen.
    - User sessions are preserved across page reloads until logout.
 
-2. **Character List**
+2. **Routing**
+
+   - If a user is not logged in, all routes will go to `/` to show the login component.
+   - If a user is logged in, `/characters` will display all characters and `/favorites` will display only favorites.
+   - If a route doesn't exist, it will redirect to `/`.
+   - If logged in, accessing `/` will redirect to `/characters`.
+
+3. **Character List**
 
    - Displays a list of character cards with the following details:
      - Image
@@ -26,19 +33,24 @@ This project is a web application that interacts with the Rick and Morty GraphQL
      - Status
    - Initially shows characters from the 1st page of the API.
 
-3. **Expandable Character Cards**
+4. **Expandable Character Cards**
 
    - Each card has a "more" button to expand the card.
    - Expanding a card shows the 3 latest episodes sorted from most recent to oldest.
    - The "more" button changes to "less" when expanded, and vice versa.
 
-4. **Favorite Characters**
+5. **Favorite Characters**
 
    - Each card has a "favorite" button to mark/unmark characters as favorites.
    - A "Display favorites" button toggles between showing all characters and only favorites.
    - Favorite characters are preserved across page reloads and per user.
 
-5. **Data Fetching and Caching**
+6. **Pagination**
+
+- Both the "characters" and "favorites" pages include pagination functionality.
+- Users can navigate through the pages using the "Next" and "Previous" controls.
+
+7. **Data Fetching and Caching**
    - The server fetches data from the Rick and Morty API and caches it in a local database.
    - Cached data expires and is refreshed from the API periodically to reduce API calls.
 

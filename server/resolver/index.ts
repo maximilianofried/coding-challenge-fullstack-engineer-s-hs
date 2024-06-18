@@ -41,8 +41,14 @@ interface ApiResponse {
   results: ApiCharacter[];
 }
 
+// Define the expiration time for cached characters (24 hours)
 const EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours
 
+/**
+ * Fetches and saves characters from the API to the database.
+ * @param {number} page - The page number to fetch.
+ * @returns {Promise<ICharacter[]>} - The fetched characters.
+ */
 const fetchAndSaveCharacters = async (page: number): Promise<ICharacter[]> => {
   const response = await axios.get<ApiResponse>(
     `https://rickandmortyapi.com/api/character?page=${page}`
@@ -89,6 +95,11 @@ const fetchAndSaveCharacters = async (page: number): Promise<ICharacter[]> => {
   }).exec();
 };
 
+/**
+ * Fetches episodes by their IDs.
+ * @param {string[]} ids - The IDs of the episodes to fetch.
+ * @returns {Promise<Episode[]>} - The fetched episodes.
+ */
 const fetchEpisodesByIds = async (ids: string[]): Promise<Episode[]> => {
   const episodePromises = ids.map(id => axios.get(id));
   const episodeResponses = await Promise.all(episodePromises);
@@ -97,6 +108,14 @@ const fetchEpisodesByIds = async (ids: string[]): Promise<Episode[]> => {
 
 const resolvers: IResolvers = {
   Query: {
+    /**
+     * Fetches a user by username.
+     * @param {any} _ - Unused "parent" parameter.
+     * @param {Object} args - The arguments object.
+     * @param {string} args.username - The username of the user to fetch.
+     * @returns {Promise<User>} - The fetched user.
+     * @throws {GraphQLError} - If the user is not found.
+     */
     getUser: async (_: any, { username }: { username: string }) => {
       const user = await User.findOne({ username });
       if (!user)
@@ -105,6 +124,14 @@ const resolvers: IResolvers = {
         });
       return user;
     },
+
+    /**
+     * Fetches a paginated list of characters.
+     * @param {any} _ - Unused "parent" parameter.
+     * @param {Object} args - The arguments object.
+     * @param {number} args.page - The page number to fetch.
+     * @returns {Promise<Object>} - The paginated list of characters.
+     */
     getCharacters: async (_: any, { page = 1 }: { page: number }) => {
       let characters = (await Character.find({ page }).exec()) as ICharacter[];
 
@@ -146,6 +173,14 @@ const resolvers: IResolvers = {
         results: characters,
       };
     },
+
+    /**
+     * Fetches episodes by their IDs.
+     * @param {any} _ - Unused "parent" parameter.
+     * @param {Object} args - The arguments object.
+     * @param {string[]} args.ids - The IDs of the episodes to fetch.
+     * @returns {Promise<Episode[]>} - The fetched episodes.
+     */
     getEpisodesByIds: async (_: any, { ids }: { ids: string[] }) => {
       const episodes = await fetchEpisodesByIds(ids);
       return episodes
@@ -155,6 +190,16 @@ const resolvers: IResolvers = {
         )
         .slice(0, 3);
     },
+
+    /**
+     * Fetches a paginated list of favorite characters for a user.
+     * @param {any} _ - Unused "parent" parameter.
+     * @param {Object} args - The arguments object.
+     * @param {string} args.username - The username of the user.
+     * @param {number} args.page - The page number to fetch.
+     * @returns {Promise<Object>} - The paginated list of favorite characters.
+     * @throws {GraphQLError} - If the user is not found.
+     */
     getFavoriteCharacters: async (_, { username, page = 1 }) => {
       const user = await User.findOne({ username }).exec();
       if (!user)
@@ -196,6 +241,13 @@ const resolvers: IResolvers = {
     },
   },
   Mutation: {
+    /**
+     * Logs in a user by creating a new user if they do not exist.
+     * @param {any} _ - Unused "parent" parameter.
+     * @param {Object} args - The arguments object.
+     * @param {string} args.username - The username of the user.
+     * @returns {Promise<User>} - The logged-in user.
+     */
     login: async (_: any, { username }: { username: string }) => {
       let user = await User.findOne({ username });
       if (!user) {
@@ -204,6 +256,16 @@ const resolvers: IResolvers = {
       }
       return user;
     },
+
+    /**
+     * Toggles the favorite status of a character for a user.
+     * @param {any} _ - Unused "parent" parameter.
+     * @param {Object} args - The arguments object.
+     * @param {string} args.username - The username of the user.
+     * @param {string} args.characterId - The ID of the character to toggle.
+     * @returns {Promise<string[]>} - The updated list of favorite character IDs.
+     * @throws {GraphQLError} - If the user is not found.
+     */
     toggleFavoriteCharacter: async (_, { username, characterId }) => {
       const user = await User.findOne({ username }).exec();
       if (!user)

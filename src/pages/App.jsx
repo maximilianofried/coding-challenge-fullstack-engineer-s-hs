@@ -18,7 +18,6 @@ import '../styles/App.css';
 const App = () => {
   // State to hold the current user
   const [user, setUser] = useState(null);
-
   // State to trigger a refresh of the character list
   const [refresh, setRefresh] = useState(false);
 
@@ -55,42 +54,58 @@ const App = () => {
     setRefresh(!refresh);
   };
 
-  // If no user is logged in, render the login component
-  if (!user) {
-    return <Login onLogin={handleLogin} />;
-  }
-
   return (
     <Provider>
       <Router>
         <div className="App">
           {/* Navbar with user info and logout functionality */}
-          <Navbar
-            setDisplayFavorites={handleDisplayFavoritesToggle}
-            handleLogout={handleLogout}
-            user={user}
-          />
+          {user && (
+            <Navbar
+              setDisplayFavorites={handleDisplayFavoritesToggle}
+              handleLogout={handleLogout}
+              user={user}
+            />
+          )}
           <Routes>
-            {/* Default route redirects to the characters list */}
-            <Route path="/" element={<Navigate to="/characters" />} />
+            {/* Root route renders Login if not logged in, otherwise redirects to characters */}
+            <Route
+              path="/"
+              element={
+                user ? (
+                  <Navigate to="/characters" />
+                ) : (
+                  <Login onLogin={handleLogin} />
+                )
+              }
+            />
             {/* Route for displaying all characters */}
             <Route
               path="/characters"
               element={
-                <CharactersList user={user} refresh={refresh} type="all" />
+                user ? (
+                  <CharactersList user={user} refresh={refresh} type="all" />
+                ) : (
+                  <Navigate to="/" />
+                )
               }
             />
             {/* Route for displaying favorite characters */}
             <Route
               path="/favorites"
               element={
-                <CharactersList
-                  user={user}
-                  refresh={refresh}
-                  type="favorites"
-                />
+                user ? (
+                  <CharactersList
+                    user={user}
+                    refresh={refresh}
+                    type="favorites"
+                  />
+                ) : (
+                  <Navigate to="/" />
+                )
               }
             />
+            {/* Catch-all route redirects to root */}
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
       </Router>

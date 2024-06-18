@@ -11,10 +11,18 @@ import CharactersList from '../components/CharactersList';
 import Navbar from '../components/Navbar';
 import '../styles/App.css';
 
+/**
+ * Main application component.
+ * Manages user authentication and routing.
+ */
 const App = () => {
+  // State to hold the current user
   const [user, setUser] = useState(null);
+
+  // State to trigger a refresh of the character list
   const [refresh, setRefresh] = useState(false);
 
+  // Effect to load the user from local storage when the component mounts
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -23,20 +31,31 @@ const App = () => {
     }
   }, []);
 
+  /**
+   * Handles user login.
+   * @param {Object} userData - User data from login.
+   */
   const handleLogin = userData => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
+  /**
+   * Handles user logout.
+   */
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
+  /**
+   * Toggles the refresh state to update the character list.
+   */
   const handleDisplayFavoritesToggle = () => {
     setRefresh(!refresh);
   };
 
+  // If no user is logged in, render the login component
   if (!user) {
     return <Login onLogin={handleLogin} />;
   }
@@ -45,19 +64,23 @@ const App = () => {
     <Provider>
       <Router>
         <div className="App">
+          {/* Navbar with user info and logout functionality */}
           <Navbar
             setDisplayFavorites={handleDisplayFavoritesToggle}
             handleLogout={handleLogout}
             user={user}
           />
           <Routes>
+            {/* Default route redirects to the characters list */}
             <Route path="/" element={<Navigate to="/characters" />} />
+            {/* Route for displaying all characters */}
             <Route
               path="/characters"
               element={
                 <CharactersList user={user} refresh={refresh} type="all" />
               }
             />
+            {/* Route for displaying favorite characters */}
             <Route
               path="/favorites"
               element={

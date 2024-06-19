@@ -50,49 +50,62 @@ const EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours
  * @returns {Promise<ICharacter[]>} - The fetched characters.
  */
 const fetchAndSaveCharacters = async (page: number): Promise<ICharacter[]> => {
-  const response = await axios.get<ApiResponse>(
-    `https://rickandmortyapi.com/api/character?page=${page}`
-  );
-  const data = response.data;
+  try {
+    const response = await axios.get<ApiResponse | { error: string }>(
+      `https://rickandmortyapi.com/api/character?page=${page}`
+    );
 
-  const characters = data.results.map((char: ApiCharacter) => ({
-    id: char.id,
-    name: char.name,
-    image: char.image,
-    species: char.species,
-    gender: char.gender,
-    origin: {
-      name: char.origin.name,
-      dimension: char.origin.dimension || '',
-    },
-    status: char.status,
-    episode: char.episode.map(ep => ({
-      id: ep,
-      name: '',
-      air_date: '',
-    })),
-    lastUpdated: new Date(),
-    page: page,
-  }));
+    // Check if the response contains an error
+    if ('error' in response.data) {
+      console.log('API error:', response.data.error);
+      return [];
+    }
 
-  await Character.deleteMany({ id: { $in: characters.map(char => char.id) } });
-  await Character.insertMany(characters as ICharacter[]);
-
-  // Update metadata with the latest total character count and total pages
-  await Metadata.updateOne(
-    { key: 'characterInfo' },
-    {
-      value: {
-        count: data.info.count,
-        pages: data.info.pages,
+    const data = response.data as ApiResponse;
+    const characters = data.results.map((char: ApiCharacter) => ({
+      id: char.id,
+      name: char.name,
+      image: char.image,
+      species: char.species,
+      gender: char.gender,
+      origin: {
+        name: char.origin.name,
+        dimension: char.origin.dimension || '',
       },
-    },
-    { upsert: true }
-  );
+      status: char.status,
+      episode: char.episode.map(ep => ({
+        id: ep,
+        name: '',
+        air_date: '',
+      })),
+      lastUpdated: new Date(),
+      page: page,
+    }));
 
-  return Character.find({
-    id: { $in: characters.map(char => char.id) },
-  }).exec();
+    await Character.deleteMany({
+      id: { $in: characters.map(char => char.id) },
+    });
+    await Character.insertMany(characters as ICharacter[]);
+
+    // Update metadata with the latest total character count and total pages
+    await Metadata.updateOne(
+      { key: 'characterInfo' },
+      {
+        value: {
+          count: data.info.count,
+          pages: data.info.pages,
+        },
+      },
+      { upsert: true }
+    );
+
+    return Character.find({
+      id: { $in: characters.map(char => char.id) },
+    }).exec();
+  } catch (error) {
+    console.error('Error fetching and saving characters:', error);
+    return [];
+  }
 };
 
 /**
@@ -134,7 +147,6 @@ const resolvers: IResolvers = {
      */
     getCharacters: async (_: any, { page = 1 }: { page: number }) => {
       let characters = (await Character.find({ page }).exec()) as ICharacter[];
-
       const now = Date.now();
       let totalCharacters = 0;
       let totalPages = 0;
@@ -152,7 +164,6 @@ const resolvers: IResolvers = {
         now - characters[0].lastUpdated.getTime() > EXPIRATION_TIME
       ) {
         characters = await fetchAndSaveCharacters(page);
-
         // Fetch updated metadata after saving new characters
         const updatedMetadata = await Metadata.findOne({
           key: 'characterInfo',

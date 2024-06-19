@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import CharacterCard from './CharacterCard';
 import {
   GET_CHARACTERS,
@@ -28,6 +28,7 @@ const CharactersList = ({ user, refresh, type }) => {
 
   // Determine the current page from the URL, defaulting to 1
   const currentPage = parseInt(searchParams.get('page')) || 1;
+  const navigate = useNavigate();
 
   // Check if the current page is the favorites page
   const isFavoritesPage = type === 'favorites';
@@ -78,6 +79,19 @@ const CharactersList = ({ user, refresh, type }) => {
     }
   }, [data, isFavoritesPage]);
 
+  // Effect to handle empty characters list and navigate to the last available page
+  useEffect(() => {
+    if (data && (data.getCharacters || data.getFavoriteCharacters)) {
+      const characterList = isFavoritesPage
+        ? data.getFavoriteCharacters.results
+        : data.getCharacters.results;
+
+      if (characterList.length === 0) {
+        navigate('?page=1');
+      }
+    }
+  }, [data, isFavoritesPage, navigate]);
+
   /**
    * Handle expanding or collapsing a character card.
    * @param {string} id - The ID of the character to expand/collapse.
@@ -110,20 +124,26 @@ const CharactersList = ({ user, refresh, type }) => {
     }
   };
 
+  // Memoize the computation of info, charactersList, and totalPages
+  const { info, charactersList, totalPages } = useMemo(() => {
+    if (data) {
+      const info = isFavoritesPage
+        ? data.getFavoriteCharacters.info
+        : data.getCharacters.info;
+      const charactersList = isFavoritesPage
+        ? data.getFavoriteCharacters.results
+        : data.getCharacters.results;
+      const totalPages = info.pages;
+      return { info, charactersList, totalPages };
+    }
+    return { info: null, charactersList: [], totalPages: 0 };
+  }, [data, isFavoritesPage]);
+
   // Display loading state
   if (loading) return <p>Loading...</p>;
 
   // Display error state
   if (error) return <p>Error :( {error.message}</p>;
-
-  // Extract pagination info and character list from the data
-  const info = isFavoritesPage
-    ? data.getFavoriteCharacters.info
-    : data.getCharacters.info;
-  const charactersList = isFavoritesPage
-    ? data.getFavoriteCharacters.results
-    : data.getCharacters.results;
-  const totalPages = info.pages;
 
   return (
     <div className="characters-list">

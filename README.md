@@ -57,7 +57,7 @@ This project is a web application that interacts with the Rick and Morty GraphQL
 ## Technologies Used
 
 - **Frontend**: React, Apollo Client
-- **Backend**: Node.js, Apollo Server, Express, MongoDB
+- **Backend**: Node.js, Typescript, Apollo Server, Express, MongoDB
 - **Styling**: CSS
 
 ## Running the Project Locally
